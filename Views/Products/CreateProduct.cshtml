@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Product</title>
+</head>
+<body>
+    <h2>Create Product</h2>
+    <form id="productForm">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <button type="submit">Create</button>
+    </form>
+
+    <script>
+        document.getElementById('productForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const product = {
+                name: formData.get('name'),
+            };
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/Products/Create', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            console.log('Success:', response);
+                            //очистка формы после успешного добавления продукта
+                            //document.getElementById('productForm').reset();
+                            // Перенаправление или обновление страницы после успешного создания продукта
+                            window.location.href = '/Products/Create';
+                        } catch (error) {
+                            console.error('Error parsing JSON:', error);
+                        }
+                    } else {
+                        console.error('Error:', xhr.statusText);
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(product));
+        });
+    </script>
+</body>
+</html>
