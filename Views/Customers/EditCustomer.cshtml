@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Customer</title>
+</head>
+<body>
+    <h1>Edit Customer</h1>
+    <form id="editCustomerForm">
+        <div>
+            <label for="customerId">Customer ID:</label>
+            <input type="text" id="customerId" name="customerId" required />
+        </div>
+        <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required />
+        </div>
+        <button type="submit">Save</button>
+    </form>
+    <ul>
+        <li><a href="/Customers/Index" class="btn">Back to menu</a></li>
+    </ul>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Получение идентификатора покупателя из URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const customerId = urlParams.get('id');
+
+            if (customerId) {
+                // Установка значения customerId в поле ввода
+                document.getElementById('customerId').value = customerId;
+
+                // Отправка AJAX-запроса для получения данных покупателя
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', `/Customers/GetCustomer/${customerId}`, true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        const customer = JSON.parse(xhr.responseText);
+                        document.getElementById('name').value = customer.name;
+                    }
+                };
+                xhr.send();
+            }
+        });
+
+        document.getElementById('editCustomerForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const customerId = document.getElementById('customerId').value;
+            const name = document.getElementById('name').value;
+
+            const customer = {
+                customerId: parseInt(customerId, 10),
+                name: name
+            };
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('PUT', '/Customers/Edit', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        // Очистка формы после успешного редактирования
+                        document.getElementById('customerId').value = '';
+                        document.getElementById('name').value = '';
+                    } else {
+                        alert('Error updating customer');
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(customer));
+        });
+    </script>
+</body>
+</html>

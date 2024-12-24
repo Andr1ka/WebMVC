@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Customer</title>
+</head>
+<body>
+    <h1>Delete Customer</h1>
+    <form id="deleteCustomerForm">
+        <div>
+            <label for="customerId">Customer ID:</label>
+            <input type="text" id="customerId" name="customerId" required />
+        </div>
+        <button type="submit">Delete</button>
+    </form>
+    <ul>
+        <li><a href="/Customers/Index" class="btn">Back to menu</a></li>
+    </ul>
+    <script>
+        document.getElementById('deleteCustomerForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const customerId = document.getElementById('customerId').value;
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('DELETE', `/Customers/Delete/${customerId}`, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        // Очистка формы после успешного удаления
+                        document.getElementById('customerId').value = '';
+                    } else {
+                        alert('Error deleting customer');
+                    }
+                }
+            };
+            xhr.send();
+        });
+    </script>
+</body>
+</html>

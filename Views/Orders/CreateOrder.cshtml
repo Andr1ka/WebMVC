@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Order</title>
+</head>
+<body>
+    <h1>Create Order</h1>
+    <form id="createOrderForm">
+        <div>
+            <label for="customerId">Customer ID:</label>
+            <input type="text" id="customerId" name="customerId" required />
+        </div>
+        <div>
+            <label for="products">Products (comma-separated IDs):</label>
+            <input type="text" id="products" name="products" required />
+        </div>
+        <button type="submit">Create</button>
+    </form>
+
+    <script>
+        document.getElementById('createOrderForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const customerId = document.getElementById('customerId').value;
+            const products = document.getElementById('products').value.split(',').map(Number);
+
+            const order = {
+                customerId: parseInt(customerId, 10),
+                orderProducts: products.map(productId => ({ productId: productId }))
+            };
+
+            console.log('Sending order:', order); // Логирование данных перед отправкой
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/Orders/Create', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log('Order created successfully:', xhr.responseText); // Логирование успешного ответа
+                        // Очистка формы после успешного создания
+                        document.getElementById('customerId').value = '';
+                        document.getElementById('products').value = '';
+                        alert('Order created successfully');
+                    } else {
+                        console.error('Error creating order:', xhr.responseText); // Логирование ошибки
+                        alert('Error creating order');
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(order));
+        });
+    </script>
+</body>
+</html>

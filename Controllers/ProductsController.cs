@@ -23,79 +23,82 @@ namespace WebMVC.Controllers
             return View();
         }
 
-        [HttpGet("View")]
-        public IActionResult ViewProduct(Product product)
-        {
-            var products = _context.Products.ToList();
-            return View(products);
-        }
-
         [HttpGet("Create")]
         public IActionResult CreateProduct()
         {
             return View();
         }
 
+        [HttpGet("View")]
+        public IActionResult ViewProduct()
+        {
+            return View();
+        }
+
+        [HttpGet("Edit")]
+        public IActionResult EditProduct()
+        {
+            return View();
+        }
+
+        [HttpGet("Delete")]
+        public IActionResult DeleteProduct()
+        {
+            return View();
+        }
+
+        [HttpGet("GetProducts")]
+        public async Task<IActionResult> GetProducts()
+        {
+            var products = await _context.Products.ToListAsync();
+            return Json(products);
+        }
+
         [HttpPost("Create")]
-        public async Task<IActionResult> CreateOrder([FromBody] Order order)
+        public async Task<IActionResult> CreateProduct([FromBody] Product product)
         {
             if (ModelState.IsValid)
             {
-                _context.Orders.Add(order);
+                _context.Products.Add(product);
                 await _context.SaveChangesAsync();
-                return Ok(new { message = "Order created successfully", orderId = order.OrderId });
+                return Ok(new { message = "Product created successfully", productId = product.ProductId });
             }
             return BadRequest(ModelState);
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOrder(int id)
-        {
-            var order = await _context.Orders
-                .Include(o => o.Customer)
-                .Include(o => o.OrderProducts)
-                .ThenInclude(op => op.Product)
-                .FirstOrDefaultAsync(o => o.OrderId == id);
 
-            if (order == null)
+        [HttpDelete("Delete/{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
             {
                 return NotFound();
             }
 
-            return Ok(order);
-        }
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
 
-
-        [HttpDelete("Delete")]
-        public IActionResult DeleteProduct(int id)
-        {
-            var product = _context.Products.Find(id);
-            if (product != null)
-            {
-                _context.Products.Remove(product);
-                _context.SaveChanges();
-            }
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
         [HttpPut("Edit")]
-        public IActionResult EditProduct(int id, Product product)
+        public async Task<IActionResult> EditProduct([FromBody] Product product)
         {
-            if (id != product.ProductId)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
                 try
                 {
+                    Console.WriteLine($"Updating product with ID: {product.ProductId}");
                     _context.Update(product);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine($"Product with ID: {product.ProductId} updated successfully");
+                    return Ok();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
+                    Console.WriteLine($"DbUpdateConcurrencyException: {ex.Message}");
                     if (!ProductExists(product.ProductId))
                     {
                         return NotFound();
@@ -105,9 +108,24 @@ namespace WebMVC.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception: {ex.Message}");
+                    return StatusCode(500, "Internal server error");
+                }
             }
-            return View(product);
+            return BadRequest(ModelState);
+        }
+
+        [HttpGet("GetProduct/{id}")]
+        public async Task<IActionResult> GetProduct(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return Json(product);
         }
 
         private bool ProductExists(int id)

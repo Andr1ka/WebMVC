@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Product List</title>
+</head>
+<body>
+    <h1>Product List</h1>
+    <table id="productTable" border="1">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Продукты будут добавлены здесь с помощью JavaScript -->
+        </tbody>
+    </table>
+    <ul>
+        <li><a href="/Products/Index" class="btn">Back to menu</a></li>
+    </ul>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Отправка AJAX-запроса для получения списка продуктов
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/Products/GetProducts', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const products = JSON.parse(xhr.responseText);
+                    const tableBody = document.querySelector('#productTable tbody');
+
+                    // Очистка таблицы перед добавлением новых данных
+                    tableBody.innerHTML = '';
+
+                    // Добавление продуктов в таблицу
+                    products.forEach(product => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${product.productId}</td>
+                            <td>${product.name}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+            };
+            xhr.send();
+        });
+    </script>
+</body>
+</html>

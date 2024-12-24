@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer List</title>
+</head>
+<body>
+    <h1>Customer List</h1>
+    <table id="customerTable" border="1">
+        <thead>
+            <tr>
+                <th>Customer ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Покупатели будут добавлены здесь с помощью JavaScript -->
+        </tbody>
+    </table>
+    <ul>
+        <li><a href="/Customers/Index" class="btn">Back to menu</a></li>
+    </ul>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Отправка AJAX-запроса для получения списка покупателей
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/Customers/GetCustomers', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const customers = JSON.parse(xhr.responseText);
+                    const tableBody = document.querySelector('#customerTable tbody');
+
+                    // Очистка таблицы перед добавлением новых данных
+                    tableBody.innerHTML = '';
+
+                    // Добавление покупателей в таблицу
+                    customers.forEach(customer => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${customer.customerId}</td>
+                            <td>${customer.name}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+            };
+            xhr.send();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Product</title>
+</head>
+<body>
+    <h1>Delete Product</h1>
+    <form id="deleteProductForm">
+        <div>
+            <label for="productId">Product ID:</label>
+            <input type="text" id="productId" name="productId" required />
+        </div>
+        <button type="submit">Delete</button>
+    </form>
+    <ul>
+        <li><a href="/Products/Index" class="btn">Back to menu</a></li>
+    </ul>
+    <script>
+        document.getElementById('deleteProductForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const productId = document.getElementById('productId').value;
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('DELETE', `/Products/Delete/${productId}`, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        // Очистка формы после успешного удаления
+                        document.getElementById('productId').value = '';
+                    } else {
+                        alert('Error deleting product');
+                    }
+                }
+            };
+            xhr.send();
+        });
+    </script>
+</body>
+</html>

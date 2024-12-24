@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Customer</title>
+</head>
+<body>
+    <h1>Create Customer</h1>
+    <form id="createCustomerForm">
+        <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required />
+        </div>
+        <button type="submit">Create</button>
+    </form>
+    <ul>
+        <li><a href="/Customers/Index" class="btn">Back to menu</a></li>
+    </ul>
+    <script>
+        document.getElementById('createCustomerForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+
+            const customer = {
+                name: name
+            };
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/Customers/Create', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        // Очистка формы после успешного создания
+                        document.getElementById('name').value = '';
+                    } else {
+                        alert('Error creating customer');
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(customer));
+        });
+    </script>
+</body>
+</html>

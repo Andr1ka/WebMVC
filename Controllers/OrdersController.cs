@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using WebMVC.Model;
 using WebMVC.Model.EntityFramework;
 
 namespace WebMVC.Controllers
@@ -18,11 +20,52 @@ namespace WebMVC.Controllers
         [HttpGet("Index")]
         public IActionResult Index()
         {
-            var orders = _context.Orders.ToList();
-            return View(orders);
+            return View();
+
+        }
+        [HttpGet("Create")]
+        public IActionResult CreateOrder()
+        {
+            return View();
 
         }
 
-        // Другие действия для управления заказами (Create, Edit, Delete и т.д.)
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> CreateOrder([FromBody] Order order)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Orders.Add(order);
+                    await _context.SaveChangesAsync();
+                    return Ok(new { message = "Order created successfully", orderId = order.OrderId });
+                }
+                catch (DbUpdateException ex)
+                {
+                    Console.WriteLine($"DbUpdateException: {ex.Message}");
+                    return StatusCode(500, "Internal server error");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception: {ex.Message}");
+                    return StatusCode(500, "Internal server error");
+                }
+            }
+
+            // Логирование ошибок валидации
+            foreach (var key in ModelState.Keys)
+            {
+                var errors = ModelState[key].Errors;
+                foreach (var error in errors)
+                {
+                    Console.WriteLine($"Validation error for {key}: {error.ErrorMessage}");
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
+
     }
 }
