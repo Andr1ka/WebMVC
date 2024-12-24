@@ -16,7 +16,9 @@
         </div>
         <button type="submit">Create</button>
     </form>
-
+    <ul>
+        <li><a href="/Orders/Index" class="btn">Back to menu</a></li>
+    </ul>
     <script>
         document.getElementById('createOrderForm').addEventListener('submit', function (event) {
             event.preventDefault();
@@ -41,7 +43,6 @@
                         // Очистка формы после успешного создания
                         document.getElementById('customerId').value = '';
                         document.getElementById('products').value = '';
-                        alert('Order created successfully');
                     } else {
                         console.error('Error creating order:', xhr.responseText); // Логирование ошибки
                         alert('Error creating order');

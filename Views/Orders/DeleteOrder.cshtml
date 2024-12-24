@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Order</title>
+</head>
+<body>
+    <h1>Delete Order</h1>
+    <form id="deleteOrderForm">
+        <div>
+            <label for="orderId">Order ID:</label>
+            <input type="text" id="orderId" name="orderId" required />
+        </div>
+        <button type="submit">Delete</button>
+    </form>
+    <ul>
+        <li><a href="/Orders/Index" class="btn">Back to menu</a></li>
+    </ul>
+    <script>
+        document.getElementById('deleteOrderForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const orderId = document.getElementById('orderId').value;
+
+            console.log('Deleting order with ID:', orderId); // Логирование данных перед отправкой
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('DELETE', `/Orders/Delete/${orderId}`, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log('Order deleted successfully:', xhr.responseText); // Логирование успешного ответа
+                        alert('Order deleted successfully');
+                    } else {
+                        console.error('Error deleting order:', xhr.responseText); // Логирование ошибки
+                        alert('Error deleting order');
+                    }
+                }
+            };
+            xhr.send();
+        });
+    </script>
+</body>
+</html>

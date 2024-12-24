@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Order</title>
+</head>
+<body>
+    <h1>Edit Order</h1>
+    <form id="editOrderForm">
+        <div>
+            <label for="orderId">Order ID:</label>
+            <input type="text" id="orderId" name="orderId" required />
+        </div>
+        <div>
+            <label for="customerId">Customer ID:</label>
+            <input type="text" id="customerId" name="customerId" required />
+        </div>
+        <div>
+            <label for="products">Products (comma-separated IDs):</label>
+            <input type="text" id="products" name="products" required />
+        </div>
+        <button type="submit">Save</button>
+    </form>
+    <ul>
+        <li><a href="/Orders/Index" class="btn">Back to menu</a></li>
+    </ul>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Получение ID заказа из URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+
+            if (orderId) {
+                // Отправка AJAX-запроса для получения данных заказа
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', `/Orders/GetOrder/${orderId}`, true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        const order = JSON.parse(xhr.responseText);
+                        document.getElementById('orderId').value = order.orderId;
+                        document.getElementById('customerId').value = order.customerId;
+                        document.getElementById('products').value = order.products.map(p => p.productId).join(',');
+                    } else if (xhr.readyState === 4) {
+                        console.error('Error fetching order:', xhr.responseText); // Логирование ошибки
+                    }
+                };
+                xhr.send();
+            }
+        });
+
+        document.getElementById('editOrderForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const orderId = document.getElementById('orderId').value;
+            const customerId = document.getElementById('customerId').value;
+            const products = document.getElementById('products').value.split(',').map(Number);
+
+            const order = {
+                orderId: parseInt(orderId, 10),
+                customerId: parseInt(customerId, 10),
+                orderProducts: products.map(productId => ({ productId: productId }))
+            };
+
+            console.log('Sending order:', order); // Логирование данных перед отправкой
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('PUT', '/Orders/Edit', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log('Order updated successfully:', xhr.responseText); // Логирование успешного ответа
+                        
+                    } else {
+                        console.error('Error updating order:', xhr.responseText); // Логирование ошибки
+                        alert('Error updating order');
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(order));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Order List</title>
+</head>
+<body>
+    <h1>Order List</h1>
+    <table id="orderTable" border="1">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer ID</th>
+                <th>Customer Name</th>
+                <th>Products</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Заказы будут добавлены здесь с помощью JavaScript -->
+        </tbody>
+    </table>
+    <ul>
+        <li><a href="/Orders/Index" class="btn">Back to menu</a></li>
+    </ul>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Отправка AJAX-запроса для получения списка заказов
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/Orders/GetOrders', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log('Response from server:', xhr.responseText); // Логирование ответа от сервера
+                        let orders;
+                        try {
+                            orders = JSON.parse(xhr.responseText);
+                        } catch (e) {
+                            console.error('Error parsing JSON:', e);
+                            return;
+                        }
+                        console.log('Parsed orders:', orders); // Логирование данных, которые мы получаем
+                        const tableBody = document.querySelector('#orderTable tbody');
+
+                        // Очистка таблицы перед добавлением новых данных
+                        tableBody.innerHTML = '';
+
+                        // Добавление заказов в таблицу
+                        orders.forEach(order => {
+                            console.log('Processing order:', order); // Логирование обрабатываемого заказа
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${order.orderId}</td>
+                                <td>${order.customerId}</td>
+                                <td>${order.customerName}</td>
+                                <td>
+                                    <ul>
+                                        ${order.products.map(product => `<li>${product.productName} (ID: ${product.productId})</li>`).join('')}
+                                    </ul>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    } else {
+                        console.error('Error fetching orders:', xhr.responseText); // Логирование ошибки
+                    }
+                }
+            };
+            xhr.send();
+        });
+    </script>
+</body>
+</html>
